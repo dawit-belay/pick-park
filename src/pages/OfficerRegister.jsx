@@ -4,6 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { registerOfficer } from "../api/auth";
 
 export default function OfficerRegister() {
+
+  const BASE_URL = "https://parking-app-13ns.onrender.com";
+// const BASE_URL = "http://localhost:8000";
+
   const { token } = useAuth();
 
   const [name, setName] = useState("");
@@ -17,7 +21,7 @@ export default function OfficerRegister() {
   // ✅ Fetch officers
   async function fetchOfficers() {
     try {
-      const res = await fetch("http://localhost:8000/admin/officers", {
+      const res = await fetch(`${BASE_URL}/admin/officers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch officers");
@@ -39,7 +43,7 @@ export default function OfficerRegister() {
     if (!window.confirm("Are you sure you want to delete this officer?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/admin/officer/${id}`, {
+      const res = await fetch(`${BASE_URL}/admin/officer/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
