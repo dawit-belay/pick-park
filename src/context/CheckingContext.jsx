@@ -6,8 +6,8 @@
   // 2️⃣ Provider Component
   export function CheckingProvider({ children }) {
 
-    // const BASE_URL = "https://parking-app-13ns.onrender.com";
-    const BASE_URL = "http://localhost:8000";
+    const BASE_URL = "https://parking-app-13ns.onrender.com";
+    // const BASE_URL = "http://localhost:8000";
 
 
     const [cars, setCars] = useState([]);
