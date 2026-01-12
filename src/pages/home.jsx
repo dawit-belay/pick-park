@@ -24,7 +24,7 @@ function Home() {
         <div className="absolute inset-0 opacity-5" style={{backgroundImage: "linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 76%, transparent 77%, transparent)", backgroundSize: "50px 50px"}}></div>
 
         {/* Content */}
-        <div className="relative z-10 px-4 sm:px-8 max-w-5xl mx-auto">
+        <div className="relative z-10 px-4 sm:px-6 md:px-8 max-w-5xl mx-auto w-full">
           <div className="text-center">
             {/* Badge */}
             <div className="mb-8 inline-block">
@@ -80,7 +80,7 @@ function Home() {
       </div>
 
       {/* Features Section - Unique Layout */}
-      <div className="py-32 px-4 sm:px-8 relative">
+      <div className="py-32 px-4 sm:px-6 md:px-8 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-5xl sm:text-6xl font-black mb-4">
@@ -167,7 +167,7 @@ function Home() {
       </div>
 
       {/* CTA Section - Unique Design */}
-      <div className="py-32 px-4 sm:px-8 relative overflow-hidden">
+      <div className="py-32 px-4 sm:px-6 md:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-800/30 to-slate-900/30"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-slate-700/10 rounded-full filter blur-3xl"></div>
         
@@ -189,14 +189,14 @@ function Home() {
       </div>
 
       {/* Footer - Unique Design */}
-      <div className="border-t border-white/10 py-16 px-4 sm:px-8">
+      <div className="border-t border-white/10 py-16 px-4 sm:px-6 md:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
+            <div className="text-center sm:text-left">
               <h3 className="text-2xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">Pick Park</h3>
               <p className="text-gray-400 text-sm leading-relaxed">The future of urban parking is here. Smart, fast, and affordable.</p>
             </div>
-            <div>
+            <div className="text-center sm:text-left">
               <h4 className="text-white font-bold mb-4 uppercase text-sm tracking-widest">Users</h4>
               <ul className="text-sm space-y-3 text-gray-400">
                 <li><a href="/cars" className="hover:text-white transition">Find Parking</a></li>
@@ -204,14 +204,14 @@ function Home() {
                 <li><a href="#" className="hover:text-white transition">Pricing</a></li>
               </ul>
             </div>
-            <div>
+            <div className="text-center sm:text-left">
               <h4 className="text-white font-bold mb-4 uppercase text-sm tracking-widest">Operators</h4>
               <ul className="text-sm space-y-3 text-gray-400">
                 <li><a href="/admin-login" className="hover:text-white transition">Admin Panel</a></li>
                 <li><a href="#" className="hover:text-white transition">Partner Program</a></li>
               </ul>
             </div>
-            <div>
+            <div className="text-center sm:text-left">
               <h4 className="text-white font-bold mb-4 uppercase text-sm tracking-widest">Company</h4>
               <ul className="text-sm space-y-3 text-gray-400">
                 <li><a href="#" className="hover:text-white transition">Privacy</a></li>
