@@ -59,7 +59,7 @@ function Home() {
           ) : null}
 
             {/* Stats inline */}
-            <div className="flex justify-center gap-4 sm:gap-12 text-center px-2 sm:px-0 flex-wrap">
+            <div className="flex justify-center gap-8 sm:gap-12 text-center px-2 sm:px-0 flex-wrap">
               <div>
                 <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">10K+</div>
                 <div className="text-sm text-gray-400">Active Drivers</div>
