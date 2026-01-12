@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 export default function Report() {
   const [report, setReport] = useState([]);
 
-  // const BASE_URL = "https://parking-app-13ns.onrender.com";
-  const BASE_URL = "http://localhost:8000";
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchReport = async () => {
     try {
