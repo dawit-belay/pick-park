@@ -122,28 +122,30 @@ useEffect(() => {
 }, []);
 
 return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8 lg:p-12">
-        <div className="max-w-7xl mx-auto space-y-8 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black pt-24 pb-12 px-4">
+        <div className="max-w-7xl mx-auto space-y-8">
             {/* Header */}
-            <div className="text-center space-y-2">
-                <h1 className="text-4xl md:text-5xl font-bold text-slate-800 tracking-tight">Admin Dashboard</h1>
-                <p className="text-slate-600 text-lg">Manage your pricing structure</p>
+            <div className="text-center space-y-3 mb-12">
+                <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">
+                    Pricing Dashboard
+                </h1>
+                <p className="text-gray-400 text-lg">Manage parking pricing tiers and rates</p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Add New Price Range Form */}
                 <form
                     onSubmit={handleAddPriceRange}
-                    className="lg:col-span-1 bg-white rounded-xl shadow-lg border border-slate-200 p-6 space-y-5"
+                    className="lg:col-span-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-8 shadow-2xl hover:border-purple-500/50 transition-all"
                 >
-                    <div className="border-b border-slate-200 pb-4">
-                        <h2 className="text-xl font-bold text-slate-800">Add New Price Range</h2>
-                        <p className="text-sm text-slate-500 mt-1">Create a new pricing tier</p>
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold text-white mb-2">Add Pricing Tier</h2>
+                        <p className="text-gray-400 text-sm">Create a new parking rate configuration</p>
                     </div>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Min Minutes
                             </label>
                             <input
@@ -151,12 +153,12 @@ return (
                                 placeholder="0"
                                 value={minMinutes}
                                 onChange={(e) => setMinMinutes(e.target.value)}
-                                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
                             />
                         </div>
                         
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Max Minutes
                             </label>
                             <input
@@ -164,12 +166,12 @@ return (
                                 placeholder="30"
                                 value={maxMinutes}
                                 onChange={(e) => setMaxMinutes(e.target.value)}
-                                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
                             />
                         </div>
                         
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Price (Birr)
                             </label>
                             <input
@@ -178,58 +180,61 @@ return (
                                 step="0.01"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
-                                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
                             />
                         </div>
                         
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition duration-200 ${
-                                loading ? "opacity-50 cursor-not-allowed" : "shadow-md hover:shadow-lg"
+                            className={`w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                loading ? "opacity-50" : ""
                             }`}
                         >
-                            {loading ? "Adding..." : "Add Price Range"}
+                            {loading ? "Adding..." : "Add Pricing Tier"}
                         </button>
                     </div>
                 </form>
 
                 {/* Table with edit/delete */}
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-                    <div className="border-b border-slate-200 p-6">
-                        <h2 className="text-xl font-bold text-slate-800">Current Price Ranges</h2>
-                        <p className="text-sm text-slate-500 mt-1">
-                            {priceRange.length} {priceRange.length === 1 ? "range" : "ranges"} configured
+                <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                    <div className="px-8 py-6 border-b border-white/10">
+                        <h2 className="text-2xl font-bold text-white mb-1">Current Price Ranges</h2>
+                        <p className="text-gray-400 text-sm">
+                            {priceRange.length} {priceRange.length === 1 ? "tier" : "tiers"} configured
                         </p>
                     </div>
                     
                     <div className="overflow-x-auto">
                         {priceRange.length === 0 ? (
-                            <div className="text-center py-16 px-4">
-                                <p className="text-slate-400 text-lg">No price ranges configured yet.</p>
-                                <p className="text-slate-400 text-sm mt-2">Add your first pricing tier to get started.</p>
+                            <div className="text-center py-16 px-8">
+                                <svg className="w-16 h-16 text-gray-600 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p className="text-gray-400 text-lg font-semibold">No pricing tiers configured</p>
+                                <p className="text-gray-500 text-sm mt-2">Add your first pricing tier to get started</p>
                             </div>
                         ) : (
-                            <table className="min-w-full divide-y divide-slate-200">
-                                <thead className="bg-slate-50">
+                            <table className="w-full">
+                                <thead className="bg-white/5 border-b border-white/10">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                                             Min Minutes
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                                             Max Minutes
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                                             Price (Birr)
                                         </th>
-                                        <th className="px-6 py-4 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-slate-200">
+                                <tbody className="divide-y divide-white/5">
                                     {priceRange.map((p) => (
-                                        <tr key={p.id} className="hover:bg-slate-50 transition">
+                                        <tr key={p.id} className="hover:bg-white/5 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {editId === p.id ? (
                                                     <input
@@ -238,10 +243,10 @@ return (
                                                         onChange={(e) =>
                                                             setEditData({ ...editData, min_minutes: e.target.value })
                                                         }
-                                                        className="border border-slate-300 rounded px-3 py-1.5 w-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                                                     />
                                                 ) : (
-                                                    <span className="text-slate-800 font-medium">{p.min_minutes}</span>
+                                                    <span className="text-white font-semibold">{p.min_minutes}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -252,10 +257,10 @@ return (
                                                         onChange={(e) =>
                                                             setEditData({ ...editData, max_minutes: e.target.value })
                                                         }
-                                                        className="border border-slate-300 rounded px-3 py-1.5 w-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                                                     />
                                                 ) : (
-                                                    <span className="text-slate-800 font-medium">{p.max_minutes}</span>
+                                                    <span className="text-white font-semibold">{p.max_minutes}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -266,10 +271,10 @@ return (
                                                         onChange={(e) =>
                                                             setEditData({ ...editData, price: e.target.value })
                                                         }
-                                                        className="border border-slate-300 rounded px-3 py-1.5 w-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                                                     />
                                                 ) : (
-                                                    <span className="text-slate-800 font-medium">{Number(p.price).toFixed(2)}</span>
+                                                    <span className="text-white font-semibold">{Number(p.price).toFixed(2)}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -278,13 +283,13 @@ return (
                                                         <>
                                                             <button
                                                                 onClick={() => handleSave(p.id)}
-                                                                className="bg-green-600 text-white px-4 py-1.5 rounded-md hover:bg-green-700 transition font-medium text-sm"
+                                                                className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
                                                             >
                                                                 Save
                                                             </button>
                                                             <button
                                                                 onClick={() => setEditId(null)}
-                                                                className="bg-slate-400 text-white px-4 py-1.5 rounded-md hover:bg-slate-500 transition font-medium text-sm"
+                                                                className="bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 px-4 py-1.5 rounded-lg transition font-medium text-sm"
                                                             >
                                                                 Cancel
                                                             </button>
@@ -293,13 +298,13 @@ return (
                                                         <>
                                                             <button
                                                                 onClick={() => handleEdit(p)}
-                                                                className="bg-amber-500 text-white px-4 py-1.5 rounded-md hover:bg-amber-600 transition font-medium text-sm"
+                                                                className="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
                                                             >
                                                                 Edit
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDelete(p.id)}
-                                                                className="bg-red-500 text-white px-4 py-1.5 rounded-md hover:bg-red-600 transition font-medium text-sm"
+                                                                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
                                                             >
                                                                 Delete
                                                             </button>
