@@ -2,15 +2,13 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function AuthModal({ isOpen, onClose, mode = "admin" }) {
-  const { handleAdminLogin, handleOfficerLogin } = useAuth();
+export default function AuthModal({ isOpen, onClose, mode = "signin" }) {
+  const { handleLogin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const isAdmin = mode === "admin";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,11 +16,11 @@ export default function AuthModal({ isOpen, onClose, mode = "admin" }) {
     setMessage("");
 
     try {
-      if (isAdmin) {
-        await handleAdminLogin(email, password);
+      const result = await handleLogin(email, password);
+      // Navigate based on role returned from backend
+      if (result?.user?.role === "admin") {
         navigate("/admin");
-      } else {
-        await handleOfficerLogin(email, password);
+      } else if (result?.user?.role === "officer") {
         navigate("/cars");
       }
       onClose();
@@ -51,14 +49,8 @@ export default function AuthModal({ isOpen, onClose, mode = "admin" }) {
               </svg>
             </button>
 
-            <h2 className="text-3xl font-bold text-white mb-2">
-              {isAdmin ? "Admin Login" : "Officer Login"}
-            </h2>
-            <p className="text-gray-400 text-sm">
-              {isAdmin
-                ? "Manage your parking operations"
-                : "Track and manage parking sessions"}
-            </p>
+            <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
+            <p className="text-gray-400 text-sm">Access your parking dashboard</p>
           </div>
         </div>
 
@@ -107,14 +99,12 @@ export default function AuthModal({ isOpen, onClose, mode = "admin" }) {
             disabled={loading}
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
           {/* Footer */}
           <p className="text-xs text-center text-gray-500 mt-4">
-            {isAdmin
-              ? "Admin dashboard for parking management"
-              : "Officer portal for parking operations"}
+            Sign in with your registered email and password
           </p>
         </form>
       </div>

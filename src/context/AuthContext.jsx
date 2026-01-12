@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from "react";
-import { adminLogin, officerLogin } from "../api/auth";
+import { login } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
@@ -22,18 +22,8 @@ export function AuthProvider({ children }) {
     return localStorage.getItem("token") || null;
   });
 
-  async function handleAdminLogin(email, password) {
-    const res = await adminLogin(email, password);
-    // console.log("AdminLogin response:", res);
-    setUser(res.admin);
-    setToken(res.token);
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("user", JSON.stringify(res.admin));
-  }
-
-  async function handleOfficerLogin(email, password) {
-    const res = await officerLogin(email, password);
-    // console.log("OfficerLogin response:", res);
+  async function handleLogin(email, password) {
+    const res = await login(email, password);
     setUser(res.user);
     setToken(res.token);
     localStorage.setItem("token", res.token);
@@ -49,7 +39,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, handleAdminLogin, handleOfficerLogin, logout }}>
+    <AuthContext.Provider value={{ user, token, handleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

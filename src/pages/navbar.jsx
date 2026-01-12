@@ -83,20 +83,12 @@ export default function Navbar() {
             {/* Right Side */}
             <div className="flex items-center space-x-4">
               {!user?.role ? (
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setAuthModal("admin")}
-                    className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white transition-colors"
-                  >
-                    Admin
-                  </button>
-                  <button
-                    onClick={() => setAuthModal("officer")}
-                    className="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-purple-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all"
-                  >
-                    Officer
-                  </button>
-                </div>
+                <button
+                  onClick={() => setAuthModal("signin")}
+                  className="px-6 py-2 text-sm font-semibold bg-gradient-to-r from-purple-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all"
+                >
+                  Sign In
+                </button>
               ) : (
                 <div className="relative">
                   <button
@@ -151,14 +143,9 @@ export default function Navbar() {
 
       {/* Auth Modals */}
       <AuthModal
-        isOpen={authModal === "admin"}
+        isOpen={authModal === "signin"}
         onClose={() => setAuthModal(null)}
-        mode="admin"
-      />
-      <AuthModal
-        isOpen={authModal === "officer"}
-        onClose={() => setAuthModal(null)}
-        mode="officer"
+        mode="signin"
       />
     </>
   );
