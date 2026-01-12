@@ -59,17 +59,17 @@ function Home() {
           ) : null}
 
             {/* Stats inline */}
-            <div className="flex justify-center gap-12 text-center">
+            <div className="flex justify-center gap-4 sm:gap-12 text-center px-2 sm:px-0 flex-wrap">
               <div>
                 <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">10K+</div>
                 <div className="text-sm text-gray-400">Active Drivers</div>
               </div>
-              <div className="w-px bg-white/20"></div>
+              <div className="w-px bg-white/20 hidden sm:block"></div>
               <div>
                 <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-orange-400">5K+</div>
                 <div className="text-sm text-gray-400">Parking Spots</div>
               </div>
-              <div className="w-px bg-white/20"></div>
+              <div className="w-px bg-white/20 hidden sm:block"></div>
               <div>
                 <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">99%</div>
                 <div className="text-sm text-gray-400">Uptime</div>
