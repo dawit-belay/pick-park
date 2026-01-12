@@ -9,8 +9,8 @@ const [loading, setLoading] = useState(false);
 const [editId, setEditId] = useState(null);
 const [editData, setEditData] = useState({ min_minutes: "", max_minutes: "", price: "" });
 
-const BASE_URL = "https://parking-app-13ns.onrender.com";
-// const BASE_URL = "http://localhost:8000";
+// const BASE_URL = "https://parking-app-13ns.onrender.com";
+const BASE_URL = "http://localhost:8000";
 
 // Fetch all price ranges
 const handlePriceRange = async () =>{

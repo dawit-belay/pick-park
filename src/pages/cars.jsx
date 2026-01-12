@@ -22,8 +22,8 @@ export default function Cars() {
 
 
 
-    const BASE_URL = "https://parking-app-13ns.onrender.com";
-    // const BASE_URL = "http://localhost:8000";
+    // const BASE_URL = "https://parking-app-13ns.onrender.com";
+    const BASE_URL = "http://localhost:8000";
 
 
  useEffect(() => {

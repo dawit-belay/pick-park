@@ -1,5 +1,5 @@
-const BASE_URL = "https://parking-app-13ns.onrender.com";
-// const BASE_URL = "http://localhost:8000";
+// const BASE_URL = "https://parking-app-13ns.onrender.com";
+const BASE_URL = "http://localhost:8000";
 
 export async function adminLogin(email, password) {
   const res = await fetch(`${BASE_URL}/admin/login`, {
