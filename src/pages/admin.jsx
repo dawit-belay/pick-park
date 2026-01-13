@@ -1,4 +1,5 @@
 import { useState,useEffect } from "react";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 export default function Admin() {
 
 const [priceRange, setPriceRange] = useState([]);
@@ -8,6 +9,7 @@ const [price, setPrice] = useState("");
 const [loading, setLoading] = useState(false);
 const [editId, setEditId] = useState(null);
 const [editData, setEditData] = useState({ min_minutes: "", max_minutes: "", price: "" });
+const [deleteLoading, setDeleteLoading] = useState(null);
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -70,6 +72,7 @@ const handleAddPriceRange = async (e) => {
 const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this price range?")) return;
 
+    setDeleteLoading(id);
     try {
     const response = await fetch(`${BASE_URL}/admin/price/${id}`, {
         method: "DELETE",
@@ -79,6 +82,8 @@ const handleDelete = async (id) => {
     else console.error("Failed to delete");
     } catch (error) {
     console.error("Error:", error);
+    } finally {
+    setDeleteLoading(null);
     }
 };
 
@@ -186,10 +191,11 @@ return (
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-                                loading ? "opacity-50" : ""
+                            className={`w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                                loading ? "opacity-50" : "shadow-md hover:shadow-lg"
                             }`}
                         >
+                            {loading ? <LoadingSpinner /> : null}
                             {loading ? "Adding..." : "Add Pricing Tier"}
                         </button>
                     </div>
@@ -303,9 +309,11 @@ return (
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDelete(p.id)}
-                                                                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
+                                                                disabled={deleteLoading === p.id}
+                                                                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-lg transition font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
                                                             >
-                                                                Delete
+                                                                {deleteLoading === p.id ? <LoadingSpinner /> : null}
+                                                                {deleteLoading === p.id ? "..." : "Delete"}
                                                             </button>
                                                         </>
                                                     )}

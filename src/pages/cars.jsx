@@ -1,5 +1,6 @@
 import { useState,useEffect } from "react";
 import { useChecking } from "../context/CheckingContext.jsx";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Cars() {
         const { handleCheckOut,
@@ -19,6 +20,10 @@ export default function Cars() {
                 setInfo,
                 setLoading
             } = useChecking();
+
+        const [checkinLoading, setCheckinLoading] = useState(false);
+        const [checkoutLoading, setCheckoutLoading] = useState(false);
+        const [refreshLoading, setRefreshLoading] = useState(false);
 
 
 
@@ -69,42 +74,60 @@ export default function Cars() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={async () => {
-                  await handleCheckIn();
-                  handleCarsPage();
+                  setCheckinLoading(true);
+                  try {
+                    await handleCheckIn();
+                    await handleCarsPage();
+                  } finally {
+                    setCheckinLoading(false);
+                  }
                 }}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-500/70 text-green-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+                disabled={checkinLoading}
+                className="flex-1 sm:flex-initial px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-500/70 text-green-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {checkinLoading ? <LoadingSpinner /> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Check-In
+                </svg>}
+                {checkinLoading ? "Checking In..." : "Check-In"}
               </button>
 
               <button
                 onClick={async () => {
-                  await handleCheckOut();
-                  handleCarsPage();
+                  setCheckoutLoading(true);
+                  try {
+                    await handleCheckOut();
+                    await handleCarsPage();
+                  } finally {
+                    setCheckoutLoading(false);
+                  }
                 }}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-500/70 text-red-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+                disabled={checkoutLoading}
+                className="flex-1 sm:flex-initial px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-500/70 text-red-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {checkoutLoading ? <LoadingSpinner /> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                </svg>
-                Check-Out
+                </svg>}
+                {checkoutLoading ? "Checking Out..." : "Check-Out"}
               </button>
 
               <button
-                onClick={() => {
-                  handleCarsPage();
-                  setMessage("");
-                  setInfo(null);
+                onClick={async () => {
+                  setRefreshLoading(true);
+                  try {
+                    await handleCarsPage();
+                    setMessage("");
+                    setInfo(null);
+                  } finally {
+                    setRefreshLoading(false);
+                  }
                 }}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+                disabled={refreshLoading}
+                className="flex-1 sm:flex-initial px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {refreshLoading ? <LoadingSpinner /> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Refresh
+                </svg>}
+                {refreshLoading ? "Refreshing..." : "Refresh"}
               </button>
             </div>
           </div>
@@ -237,12 +260,19 @@ export default function Cars() {
                         {car.status === "in" && (
                           <button
                             onClick={async () => {
-                              await handleCheckOut(car.plate_number);
-                              handleCarsPage();
+                              setCheckoutLoading(true);
+                              try {
+                                await handleCheckOut(car.plate_number);
+                                await handleCarsPage();
+                              } finally {
+                                setCheckoutLoading(false);
+                              }
                             }}
-                            className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 hover:border-orange-500/70 text-orange-400 font-semibold rounded-lg transition-all text-sm"
+                            disabled={checkoutLoading}
+                            className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 hover:border-orange-500/70 text-orange-400 font-semibold rounded-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Check-Out
+                            {checkoutLoading ? <LoadingSpinner /> : null}
+                            {checkoutLoading ? "Checking Out..." : "Check-Out"}
                           </button>
                         )}
                       </td>

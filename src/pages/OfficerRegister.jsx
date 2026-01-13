@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-
 import { registerOfficer } from "../api/auth";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function OfficerRegister() {
 
@@ -14,6 +14,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [officers, setOfficers] = useState([]);
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(null);
 
 
 
@@ -41,6 +43,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   async function handleDelete(id) {
     if (!window.confirm("Are you sure you want to delete this officer?")) return;
 
+    setDeleteLoading(id);
     try {
       const res = await fetch(`${BASE_URL}/admin/officer/${id}`, {
         method: "DELETE",
@@ -54,6 +57,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
     } catch (err) {
       console.error(err);
       setMessage(`❌ ${err.message}`);
+    } finally {
+      setDeleteLoading(null);
     }
   }
 
@@ -61,6 +66,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setRegisterLoading(true);
     try {
       const data = { name, email, password }; // ✅ create object
       await registerOfficer(data, token);
@@ -71,6 +77,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
       setPassword("");
     } catch (err) {
       setMessage(`❌ ${err.message}`);
+    } finally {
+      setRegisterLoading(false);
     }
   }
 
@@ -154,9 +162,11 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
               <button
                 type="submit"
-                className="w-full mt-6 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300"
+                disabled={registerLoading}
+                className="w-full mt-6 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Register Officer
+                {registerLoading ? <LoadingSpinner /> : null}
+                {registerLoading ? "Registering..." : "Register Officer"}
               </button>
             </form>
           </div>
@@ -220,12 +230,14 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
                           </td>
                           <td className="px-6 py-4 text-gray-400">{officer.email}</td>
                           <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => handleDelete(officer.id)}
-                              className="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition-colors font-medium text-sm border border-red-500/30 hover:border-red-500/50"
-                            >
-                              Delete
-                            </button>
+                          <button
+                            onClick={() => handleDelete(officer.id)}
+                            disabled={deleteLoading === officer.id}
+                            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-500/50 text-red-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          >
+                            {deleteLoading === officer.id ? <LoadingSpinner /> : null}
+                            {deleteLoading === officer.id ? "Deleting..." : "Delete"}
+                          </button>
                           </td>
                         </tr>
                       ))}

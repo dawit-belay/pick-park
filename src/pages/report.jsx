@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Report() {
   const [report, setReport] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,6 +14,8 @@ export default function Report() {
       setReport(data);
     } catch (error) {
       console.error("Error fetching report:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,8 +34,13 @@ export default function Report() {
           <p className="text-gray-400 text-lg">Parking analytics and revenue metrics</p>
         </div>
 
-        {/* Report Card */}
-        {report.length === 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-16 text-center shadow-2xl">
+            <LoadingSpinner />
+            <p className="text-gray-400 mt-4">Loading report data...</p>
+          </div>
+        ) : report.length === 0 ? (
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-16 text-center shadow-2xl">
             <svg
               className="w-20 h-20 text-gray-600 mx-auto mb-4 opacity-50"
