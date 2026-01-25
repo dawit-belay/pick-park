@@ -1,333 +1,349 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+
 export default function Admin() {
+  const [rates, setRates] = useState({
+    gracePeriodMins: 15,
+    shortStayMaxMins: 120,
+    shortStayRate: 50,
+    midStayMaxMins: 240,
+    midStayRate: 100,
+    dailyFlatRate: 200,
+  });
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-const [priceRange, setPriceRange] = useState([]);
-const [minMinutes, setMinMinutes] = useState("");
-const [maxMinutes, setMaxMinutes] = useState("");
-const [price, setPrice] = useState("");
-const [loading, setLoading] = useState(false);
-const [editId, setEditId] = useState(null);
-const [editData, setEditData] = useState({ min_minutes: "", max_minutes: "", price: "" });
-const [deleteLoading, setDeleteLoading] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  // Get token from localStorage
+  const getToken = () => localStorage.getItem("token");
 
-// Fetch all price ranges
-const handlePriceRange = async () =>{
-    try {
-    const response = await fetch(`${BASE_URL}/admin/price`, {
-    method: "GET",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    });
-
-    const data = await response.json();
-    if (response.ok) setPriceRange(data);
-    else console.error("Failed to fetch price range");
-    } catch (error) {
-        console.error("Error:", error);
-    }
-};
-
-// Add new price range
-const handleAddPriceRange = async (e) => {
-    e.preventDefault();
-    if (!minMinutes || !maxMinutes || !price) {
-    alert("Please fill all fields");
-    return;
-    }
-
+  // Fetch current parking rates
+  const fetchRates = async () => {
     setLoading(true);
     try {
-    const response = await fetch(`${BASE_URL}/admin/price`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/admin/rates`, {
+        method: "GET",
         headers: {
-        "Content-Type": "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // Parse the rates (remove " ETB" suffix from rate values)
+        setRates({
+          gracePeriodMins: data.rates.gracePeriodMins,
+          shortStayMaxMins: data.rates.shortStayMaxMins,
+          shortStayRate: parseFloat(data.rates.shortStayRate),
+          midStayMaxMins: data.rates.midStayMaxMins,
+          midStayRate: parseFloat(data.rates.midStayRate),
+          dailyFlatRate: parseFloat(data.rates.dailyFlatRate),
+        });
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to fetch rates" });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setMessage({ type: "error", text: "Failed to connect to server" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update parking rates
+  const handleSaveRates = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage({ type: "", text: "" });
+
+    try {
+      const response = await fetch(`${BASE_URL}/admin/rates`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-        min_minutes: Number(minMinutes),
-        max_minutes: Number(maxMinutes),
-        price: Number(price),
+          gracePeriodMins: Number(rates.gracePeriodMins),
+          shortStayMaxMins: Number(rates.shortStayMaxMins),
+          shortStayRate: Number(rates.shortStayRate),
+          midStayMaxMins: Number(rates.midStayMaxMins),
+          midStayRate: Number(rates.midStayRate),
+          dailyFlatRate: Number(rates.dailyFlatRate),
         }),
-    });
+      });
 
-    if (response.ok) {
-        setMinMinutes("");
-        setMaxMinutes("");
-        setPrice("");
-        handlePriceRange(); // Refresh table
-    } else {
-        console.error("Failed to add price range");
-    }
+      const data = await response.json();
+      if (response.ok) {
+        setMessage({ type: "success", text: "Parking rates updated successfully!" });
+        fetchRates(); // Refresh
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to update rates" });
+      }
     } catch (error) {
-    console.error("Error:", error);
+      console.error("Error:", error);
+      setMessage({ type: "error", text: "Failed to save rates" });
     } finally {
-    setLoading(false);
+      setSaving(false);
     }
-    };
+  };
 
-    // Delete a price range
-const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this price range?")) return;
+  // Reset to default rates
+  const handleResetRates = async () => {
+    if (!window.confirm("Are you sure you want to reset all rates to defaults?")) return;
 
-    setDeleteLoading(id);
+    setResetting(true);
+    setMessage({ type: "", text: "" });
+
     try {
-    const response = await fetch(`${BASE_URL}/admin/price/${id}`, {
-        method: "DELETE",
-    });
+      const response = await fetch(`${BASE_URL}/admin/rates/reset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
 
-    if (response.ok) handlePriceRange();
-    else console.error("Failed to delete");
+      const data = await response.json();
+      if (response.ok) {
+        setMessage({ type: "success", text: "Rates reset to defaults!" });
+        fetchRates(); // Refresh
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to reset rates" });
+      }
     } catch (error) {
-    console.error("Error:", error);
+      console.error("Error:", error);
+      setMessage({ type: "error", text: "Failed to reset rates" });
     } finally {
-    setDeleteLoading(null);
+      setResetting(false);
     }
-};
+  };
 
-// Start editing
-const handleEdit = (item) => {
-    setEditId(item.id);
-    setEditData({
-    min_minutes: item.min_minutes,
-    max_minutes: item.max_minutes,
-    price: item.price,
-    });
-};
+  const handleInputChange = (field, value) => {
+    setRates((prev) => ({ ...prev, [field]: Number(value) || 0 }));
+  };
 
-// Save edited data
-const handleSave = async (id) => {
-    try {
-    const response = await fetch(`${BASE_URL}/admin/price/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-        min_minutes: Number(editData.min_minutes),
-        max_minutes: Number(editData.max_minutes),
-        price: Number(editData.price),
-        }),
-    });
+  useEffect(() => {
+    fetchRates();
+  }, []);
 
-    if (response.ok) {
-        setEditId(null);
-        handlePriceRange();
-    } else {
-        console.error("Failed to update");
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (message.text) {
+      const timer = setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+      return () => clearTimeout(timer);
     }
-    } catch (error) {
-    console.error("Error:", error);
-    }
-};
+  }, [message]);
 
-useEffect(() => {
-    handlePriceRange();
-}, []);
-
-return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black pt-24 pb-12 px-4">
-        <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-3 mb-12">
-                <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">
-                    Pricing Dashboard
-                </h1>
-                <p className="text-gray-400 text-lg">Manage parking pricing tiers and rates</p>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Add New Price Range Form */}
-                <form
-                    onSubmit={handleAddPriceRange}
-                    className="lg:col-span-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-8 shadow-2xl hover:border-purple-500/50 transition-all"
-                >
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-white mb-2">Add Pricing Tier</h2>
-                        <p className="text-gray-400 text-sm">Create a new parking rate configuration</p>
-                    </div>
-                    
-                    <div className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Min Minutes
-                            </label>
-                            <input
-                                type="number"
-                                placeholder="0"
-                                value={minMinutes}
-                                onChange={(e) => setMinMinutes(e.target.value)}
-                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
-                            />
-                        </div>
-                        
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Max Minutes
-                            </label>
-                            <input
-                                type="number"
-                                placeholder="30"
-                                value={maxMinutes}
-                                onChange={(e) => setMaxMinutes(e.target.value)}
-                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
-                            />
-                        </div>
-                        
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Price (Birr)
-                            </label>
-                            <input
-                                type="number"
-                                placeholder="10.00"
-                                step="0.01"
-                                value={price}
-                                onChange={(e) => setPrice(e.target.value)}
-                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
-                            />
-                        </div>
-                        
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                                loading ? "opacity-50" : "shadow-md hover:shadow-lg"
-                            }`}
-                        >
-                            {loading ? <LoadingSpinner /> : null}
-                            {loading ? "Adding..." : "Add Pricing Tier"}
-                        </button>
-                    </div>
-                </form>
-
-                {/* Table with edit/delete */}
-                <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-                    <div className="px-8 py-6 border-b border-white/10">
-                        <h2 className="text-2xl font-bold text-white mb-1">Current Price Ranges</h2>
-                        <p className="text-gray-400 text-sm">
-                            {priceRange.length} {priceRange.length === 1 ? "tier" : "tiers"} configured
-                        </p>
-                    </div>
-                    
-                    <div className="overflow-x-auto">
-                        {priceRange.length === 0 ? (
-                            <div className="text-center py-16 px-8">
-                                <svg className="w-16 h-16 text-gray-600 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p className="text-gray-400 text-lg font-semibold">No pricing tiers configured</p>
-                                <p className="text-gray-500 text-sm mt-2">Add your first pricing tier to get started</p>
-                            </div>
-                        ) : (
-                            <table className="w-full">
-                                <thead className="bg-white/5 border-b border-white/10">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                            Min Minutes
-                                        </th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                            Max Minutes
-                                        </th>
-                                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                            Price (Birr)
-                                        </th>
-                                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {priceRange.map((p) => (
-                                        <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {editId === p.id ? (
-                                                    <input
-                                                        type="number"
-                                                        value={editData.min_minutes}
-                                                        onChange={(e) =>
-                                                            setEditData({ ...editData, min_minutes: e.target.value })
-                                                        }
-                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                                                    />
-                                                ) : (
-                                                    <span className="text-white font-semibold">{p.min_minutes}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {editId === p.id ? (
-                                                    <input
-                                                        type="number"
-                                                        value={editData.max_minutes}
-                                                        onChange={(e) =>
-                                                            setEditData({ ...editData, max_minutes: e.target.value })
-                                                        }
-                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                                                    />
-                                                ) : (
-                                                    <span className="text-white font-semibold">{p.max_minutes}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {editId === p.id ? (
-                                                    <input
-                                                        type="number"
-                                                        value={editData.price}
-                                                        onChange={(e) =>
-                                                            setEditData({ ...editData, price: e.target.value })
-                                                        }
-                                                        className="border border-white/20 bg-white/5 rounded px-3 py-1.5 w-24 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                                                    />
-                                                ) : (
-                                                    <span className="text-white font-semibold">{Number(p.price).toFixed(2)}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    {editId === p.id ? (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleSave(p.id)}
-                                                                className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
-                                                            >
-                                                                Save
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setEditId(null)}
-                                                                className="bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 px-4 py-1.5 rounded-lg transition font-medium text-sm"
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleEdit(p)}
-                                                                className="bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-400 px-4 py-1.5 rounded-lg transition font-medium text-sm"
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDelete(p.id)}
-                                                                disabled={deleteLoading === p.id}
-                                                                className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-lg transition font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
-                                                            >
-                                                                {deleteLoading === p.id ? <LoadingSpinner /> : null}
-                                                                {deleteLoading === p.id ? "..." : "Delete"}
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
-                </div>
-            </div>
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-3 mb-12">
+          <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">
+            Pricing Dashboard
+          </h1>
+          <p className="text-gray-400 text-lg">Configure parking rates and tiers</p>
         </div>
+
+        {/* Message Alert */}
+        {message.text && (
+          <div
+            className={`p-4 rounded-lg border ${
+              message.type === "success"
+                ? "bg-green-500/20 border-green-500/50 text-green-400"
+                : "bg-red-500/20 border-red-500/50 text-red-400"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <form onSubmit={handleSaveRates} className="space-y-8">
+            {/* Pricing Tiers Overview */}
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-8 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-6">Pricing Tiers</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
+                  <div className="text-green-400 text-sm font-medium mb-1">Grace Period</div>
+                  <div className="text-white text-2xl font-bold">FREE</div>
+                  <div className="text-gray-400 text-xs mt-1">0 - {rates.gracePeriodMins} mins</div>
+                </div>
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-center">
+                  <div className="text-blue-400 text-sm font-medium mb-1">Short Stay</div>
+                  <div className="text-white text-2xl font-bold">{rates.shortStayRate} ETB</div>
+                  <div className="text-gray-400 text-xs mt-1">{rates.gracePeriodMins + 1} - {rates.shortStayMaxMins} mins</div>
+                </div>
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-center">
+                  <div className="text-purple-400 text-sm font-medium mb-1">Mid Stay</div>
+                  <div className="text-white text-2xl font-bold">{rates.midStayRate} ETB</div>
+                  <div className="text-gray-400 text-xs mt-1">{rates.shortStayMaxMins + 1} - {rates.midStayMaxMins} mins</div>
+                </div>
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 text-center">
+                  <div className="text-orange-400 text-sm font-medium mb-1">Daily Rate</div>
+                  <div className="text-white text-2xl font-bold">{rates.dailyFlatRate} ETB</div>
+                  <div className="text-gray-400 text-xs mt-1">{rates.midStayMaxMins}+ mins</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Configuration Form */}
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-white/10 p-8 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-6">Configure Rates</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Grace Period */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Grace Period (minutes)
+                  </label>
+                  <p className="text-xs text-gray-500">Free parking duration</p>
+                  <input
+                    type="number"
+                    min="0"
+                    value={rates.gracePeriodMins}
+                    onChange={(e) => handleInputChange("gracePeriodMins", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+
+                {/* Short Stay Max */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Short Stay Max (minutes)
+                  </label>
+                  <p className="text-xs text-gray-500">Upper limit for short stay tier</p>
+                  <input
+                    type="number"
+                    min="0"
+                    value={rates.shortStayMaxMins}
+                    onChange={(e) => handleInputChange("shortStayMaxMins", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+
+                {/* Short Stay Rate */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Short Stay Rate (ETB)
+                  </label>
+                  <p className="text-xs text-gray-500">Price for short stay parking</p>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={rates.shortStayRate}
+                    onChange={(e) => handleInputChange("shortStayRate", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+
+                {/* Mid Stay Max */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Mid Stay Max (minutes)
+                  </label>
+                  <p className="text-xs text-gray-500">Upper limit for mid stay tier</p>
+                  <input
+                    type="number"
+                    min="0"
+                    value={rates.midStayMaxMins}
+                    onChange={(e) => handleInputChange("midStayMaxMins", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+
+                {/* Mid Stay Rate */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Mid Stay Rate (ETB)
+                  </label>
+                  <p className="text-xs text-gray-500">Price for mid stay parking</p>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={rates.midStayRate}
+                    onChange={(e) => handleInputChange("midStayRate", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+
+                {/* Daily Flat Rate */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Daily Flat Rate (ETB)
+                  </label>
+                  <p className="text-xs text-gray-500">Price for all-day parking</p>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={rates.dailyFlatRate}
+                    onChange={(e) => handleInputChange("dailyFlatRate", e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {saving && <LoadingSpinner />}
+                  {saving ? "Saving..." : "Save Changes"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetRates}
+                  disabled={resetting}
+                  className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {resetting && <LoadingSpinner />}
+                  {resetting ? "Resetting..." : "Reset to Defaults"}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {/* Info Card */}
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-white/5 p-6">
+          <h3 className="text-lg font-semibold text-white mb-3">How Pricing Works</h3>
+          <ul className="space-y-2 text-gray-400 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-green-400">•</span>
+              <span><strong>Grace Period:</strong> Vehicles parked within this time are free</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-400">•</span>
+              <span><strong>Short Stay:</strong> Applied when parked longer than grace period but within short stay max</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-purple-400">•</span>
+              <span><strong>Mid Stay:</strong> Applied when parked longer than short stay max but within mid stay max</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-orange-400">•</span>
+              <span><strong>Daily Rate:</strong> Applied when parked longer than mid stay max</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-)
+  );
 }

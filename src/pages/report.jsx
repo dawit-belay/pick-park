@@ -69,21 +69,21 @@ export default function Report() {
               <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 rounded-xl p-6">
                 <p className="text-green-400 text-sm uppercase tracking-wide font-semibold">Total Vehicles</p>
                 <p className="text-4xl font-bold text-green-300 mt-2">
-                  {report.reduce((sum, r) => sum + r.total_cars, 0)}
+                  {report.reduce((sum, r) => sum + Number(r.total_cars || 0), 0)}
                 </p>
               </div>
               <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 rounded-xl p-6">
                 <p className="text-orange-400 text-sm uppercase tracking-wide font-semibold">Total Revenue</p>
                 <p className="text-3xl font-bold text-orange-300 mt-2">
-                  {Number(report.reduce((sum, r) => sum + r.total_revenue, 0)).toFixed(2)} Birr
+                  {report.reduce((sum, r) => sum + Number(r.total_revenue || 0), 0).toFixed(2)} Birr
                 </p>
               </div>
               <div className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 rounded-xl p-6">
                 <p className="text-cyan-400 text-sm uppercase tracking-wide font-semibold">Avg. Stay</p>
                 <p className="text-3xl font-bold text-cyan-300 mt-2">
                   {Math.round(
-                    report.reduce((sum, r) => sum + r.avg_stay_minutes, 0) / report.length
-                  )}{" "}
+                    report.reduce((sum, r) => sum + Number(r.avg_stay_minutes || 0), 0) / report.length
+                  ) || 0}{" "}
                   min
                 </p>
               </div>
@@ -127,12 +127,12 @@ export default function Report() {
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="text-green-400 font-bold text-lg">
-                            {Number(row.total_revenue).toFixed(2)}
+                            {Number(row.total_revenue || 0).toFixed(2)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="text-gray-300 font-semibold">
-                            {Math.round(row.avg_stay_minutes)} min
+                            {Math.round(Number(row.avg_stay_minutes || 0))} min
                           </span>
                         </td>
                       </tr>
