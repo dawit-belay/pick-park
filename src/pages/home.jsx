@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "../components/AuthModal";
@@ -6,7 +6,23 @@ import AuthModal from "../components/AuthModal";
 function Home() {
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const [authModal, setAuthModal] = useState(null);
-  const { user } = useAuth();
+  const [demoLoading, setDemoLoading] = useState(false);
+  const { user, handleLogin } = useAuth();
+  const navigate = useNavigate();
+
+  // Demo login handler
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    try {
+      await handleLogin("demo@parking.com", "demo123");
+      navigate("/cars");
+    } catch (error) {
+      console.error("Demo login failed:", error);
+      alert("Demo login failed. Please try again.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   return (
     <div className="bg-black text-white overflow-hidden">
@@ -47,13 +63,25 @@ function Home() {
 
           {/* CTA Buttons - Only show when not logged in */}
           {!user ? (
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <button
                 onClick={() => setAuthModal("signin")}
                 className="relative group px-10 py-4 text-lg font-bold overflow-hidden rounded-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-700 group-hover:scale-110 transition-transform duration-300"></div>
                 <span className="relative">Get Started Now</span>
+              </button>
+              
+              {/* Demo Button */}
+              <button
+                onClick={handleDemoLogin}
+                disabled={demoLoading}
+                className="relative group px-10 py-4 text-lg font-bold overflow-hidden rounded-full border-2 border-purple-500/50 hover:border-purple-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-orange-600/20 group-hover:from-purple-600/30 group-hover:to-orange-600/30 transition-all duration-300"></div>
+                <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">
+                  {demoLoading ? "Loading..." : "Try Demo"}
+                </span>
               </button>
             </div>
           ) : null}

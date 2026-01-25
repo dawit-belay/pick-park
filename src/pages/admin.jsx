@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { useAuth } from "../context/AuthContext";
 
 export default function Admin() {
+  const { user } = useAuth();
+  const isDemo = user?.role === "demo";
   const [rates, setRates] = useState({
     gracePeriodMins: 15,
     shortStayMaxMins: 120,
@@ -57,6 +60,13 @@ export default function Admin() {
   // Update parking rates
   const handleSaveRates = async (e) => {
     e.preventDefault();
+    
+    // Block demo users
+    if (isDemo) {
+      setMessage({ type: "error", text: "Demo account cannot make changes. Please login with an admin account." });
+      return;
+    }
+    
     setSaving(true);
     setMessage({ type: "", text: "" });
 
@@ -94,6 +104,12 @@ export default function Admin() {
 
   // Reset to default rates
   const handleResetRates = async () => {
+    // Block demo users
+    if (isDemo) {
+      setMessage({ type: "error", text: "Demo account cannot make changes. Please login with an admin account." });
+      return;
+    }
+    
     if (!window.confirm("Are you sure you want to reset all rates to defaults?")) return;
 
     setResetting(true);
@@ -149,6 +165,20 @@ export default function Admin() {
           </h1>
           <p className="text-gray-400 text-lg">Configure parking rates and tiers</p>
         </div>
+
+        {/* Demo Mode Banner */}
+        {isDemo && (
+          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <svg className="w-6 h-6 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <div>
+              <p className="text-yellow-400 font-semibold">Demo Mode - View Only</p>
+              <p className="text-yellow-400/70 text-sm">Login with an admin account to make changes</p>
+            </div>
+          </div>
+        )}
 
         {/* Message Alert */}
         {message.text && (
@@ -213,7 +243,8 @@ export default function Admin() {
                     min="0"
                     value={rates.gracePeriodMins}
                     onChange={(e) => handleInputChange("gracePeriodMins", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -228,7 +259,8 @@ export default function Admin() {
                     min="0"
                     value={rates.shortStayMaxMins}
                     onChange={(e) => handleInputChange("shortStayMaxMins", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -244,7 +276,8 @@ export default function Admin() {
                     step="0.01"
                     value={rates.shortStayRate}
                     onChange={(e) => handleInputChange("shortStayRate", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -259,7 +292,8 @@ export default function Admin() {
                     min="0"
                     value={rates.midStayMaxMins}
                     onChange={(e) => handleInputChange("midStayMaxMins", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -275,7 +309,8 @@ export default function Admin() {
                     step="0.01"
                     value={rates.midStayRate}
                     onChange={(e) => handleInputChange("midStayRate", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -291,7 +326,8 @@ export default function Admin() {
                     step="0.01"
                     value={rates.dailyFlatRate}
                     onChange={(e) => handleInputChange("dailyFlatRate", e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                    disabled={isDemo}
+                    className={`w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                   />
                 </div>
               </div>
@@ -300,21 +336,21 @@ export default function Admin() {
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  disabled={saving || isDemo}
+                  className={`flex-1 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isDemo ? 'opacity-50' : ''}`}
                 >
                   {saving && <LoadingSpinner />}
-                  {saving ? "Saving..." : "Save Changes"}
+                  {isDemo ? "Login Required" : saving ? "Saving..." : "Save Changes"}
                 </button>
 
                 <button
                   type="button"
                   onClick={handleResetRates}
-                  disabled={resetting}
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  disabled={resetting || isDemo}
+                  className={`px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-gray-300 font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isDemo ? 'opacity-50' : ''}`}
                 >
                   {resetting && <LoadingSpinner />}
-                  {resetting ? "Resetting..." : "Reset to Defaults"}
+                  {isDemo ? "Login Required" : resetting ? "Resetting..." : "Reset to Defaults"}
                 </button>
               </div>
             </div>

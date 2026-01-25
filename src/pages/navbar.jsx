@@ -55,7 +55,7 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
-                {user?.role === "admin" && (
+                {(user?.role === "admin" || user?.role === "demo") && (
                   <>
                     <Link
                       to="/admin"
@@ -66,15 +66,17 @@ export default function Navbar() {
                       </svg>
                       Pricing
                     </Link>
-                    <Link
-                      to="/admin/register-officer"
-                      className="text-gray-300 hover:text-white font-medium transition-colors duration-200 flex items-center gap-2"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3.414a2 2 0 01-2-2V6.414a2 2 0 012-2h15.172a2 2 0 012 2v13.172a2 2 0 01-2 2z" />
-                      </svg>
-                      Officers
-                    </Link>
+                    {user?.role === "admin" && (
+                      <Link
+                        to="/admin/register-officer"
+                        className="text-gray-300 hover:text-white font-medium transition-colors duration-200 flex items-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3.414a2 2 0 01-2-2V6.414a2 2 0 012-2h15.172a2 2 0 012 2v13.172a2 2 0 01-2 2z" />
+                        </svg>
+                        Officers
+                      </Link>
+                    )}
                     <Link
                       to="/cars"
                       className="text-gray-300 hover:text-white font-medium transition-colors duration-200 flex items-center gap-2"

@@ -1,8 +1,12 @@
 import { useState,useEffect } from "react";
 import { useChecking } from "../context/CheckingContext.jsx";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { useAuth } from "../context/AuthContext";
 
 export default function Cars() {
+        const { user } = useAuth();
+        const isDemo = user?.role === "demo";
+        
         const { handleCheckOut,
                 plateNumber,
                 setPlateNumber,
@@ -23,6 +27,7 @@ export default function Cars() {
 
         const [checkinLoading, setCheckinLoading] = useState(false);
         const [checkoutLoading, setCheckoutLoading] = useState(false);
+        const [checkoutLoadingPlate, setCheckoutLoadingPlate] = useState(null); // Track which car is checking out
         const [refreshLoading, setRefreshLoading] = useState(false);
 
 
@@ -50,6 +55,20 @@ export default function Cars() {
           </p>
         </div>
 
+        {/* Demo Mode Banner */}
+        {isDemo && (
+          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mb-6 flex items-center gap-3">
+            <svg className="w-6 h-6 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <div>
+              <p className="text-yellow-400 font-semibold">Demo Mode - View Only</p>
+              <p className="text-yellow-400/70 text-sm">Login with an admin or officer account to check-in/check-out vehicles</p>
+            </div>
+          </div>
+        )}
+
         {/* Check-In/Out Card */}
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-white/10 shadow-2xl mb-8">
           <h2 className="text-2xl font-bold text-white mb-6">Vehicle Check-In / Check-Out</h2>
@@ -66,7 +85,8 @@ export default function Cars() {
                   value={plateNumber}
                   onChange={(e) => setPlateNumber(e.target.value)}
                   placeholder="e.g., AB-12-345"
-                  className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition uppercase font-semibold"
+                  disabled={isDemo}
+                  className={`flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition uppercase font-semibold ${isDemo ? 'opacity-60 cursor-not-allowed' : ''}`}
                 />
               </div>
             </div>
@@ -74,6 +94,10 @@ export default function Cars() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={async () => {
+                  if (isDemo) {
+                    setMessage("Demo account cannot make changes. Please login with an admin or officer account.");
+                    return;
+                  }
                   setCheckinLoading(true);
                   try {
                     await handleCheckIn();
@@ -82,17 +106,21 @@ export default function Cars() {
                     setCheckinLoading(false);
                   }
                 }}
-                disabled={checkinLoading}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-500/70 text-green-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={checkinLoading || isDemo}
+                className={`flex-1 sm:flex-initial px-6 py-3 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 hover:border-green-500/70 text-green-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isDemo ? 'opacity-50' : ''}`}
               >
                 {checkinLoading ? <LoadingSpinner /> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>}
-                {checkinLoading ? "Checking In..." : "Check-In"}
+                {isDemo ? "Login Required" : checkinLoading ? "Checking In..." : "Check-In"}
               </button>
 
               <button
                 onClick={async () => {
+                  if (isDemo) {
+                    setMessage("Demo account cannot make changes. Please login with an admin or officer account.");
+                    return;
+                  }
                   setCheckoutLoading(true);
                   try {
                     await handleCheckOut();
@@ -101,13 +129,13 @@ export default function Cars() {
                     setCheckoutLoading(false);
                   }
                 }}
-                disabled={checkoutLoading}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-500/70 text-red-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={checkoutLoading || isDemo}
+                className={`flex-1 sm:flex-initial px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-500/70 text-red-400 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isDemo ? 'opacity-50' : ''}`}
               >
                 {checkoutLoading ? <LoadingSpinner /> : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                 </svg>}
-                {checkoutLoading ? "Checking Out..." : "Check-Out"}
+                {isDemo ? "Login Required" : checkoutLoading ? "Checking Out..." : "Check-Out"}
               </button>
 
               <button
@@ -260,19 +288,23 @@ export default function Cars() {
                         {car.status === "in" && (
                           <button
                             onClick={async () => {
-                              setCheckoutLoading(true);
+                              if (isDemo) {
+                                setMessage("Demo account cannot make changes. Please login with an admin or officer account.");
+                                return;
+                              }
+                              setCheckoutLoadingPlate(car.plate_number);
                               try {
                                 await handleCheckOut(car.plate_number);
                                 await handleCarsPage();
                               } finally {
-                                setCheckoutLoading(false);
+                                setCheckoutLoadingPlate(null);
                               }
                             }}
-                            disabled={checkoutLoading}
-                            className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 hover:border-orange-500/70 text-orange-400 font-semibold rounded-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={checkoutLoadingPlate === car.plate_number || isDemo}
+                            className={`px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 hover:border-orange-500/70 text-orange-400 font-semibold rounded-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isDemo ? 'opacity-50' : ''}`}
                           >
-                            {checkoutLoading ? <LoadingSpinner /> : null}
-                            {checkoutLoading ? "Checking Out..." : "Check-Out"}
+                            {checkoutLoadingPlate === car.plate_number ? <LoadingSpinner /> : null}
+                            {isDemo ? "Login Required" : checkoutLoadingPlate === car.plate_number ? "Checking Out..." : "Check-Out"}
                           </button>
                         )}
                       </td>
